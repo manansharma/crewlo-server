@@ -89,13 +89,16 @@ exports.register = {
 
 
 
-exports.fbAuthorize = {
+exports.facebookAuthorize = {
     auth: false,
 	handler: function (request, reply) {
-        console.log('hi');
         console.log(request.payload);
-        var fbRegister = function(thisUser) {
-            User.fbRegister(thisUser)
+        var fb_user = request.payload,
+            fb_id = request.payload.fb_id,
+            email = request.payload.email;
+
+        var facebookRegister = function(fbUser) {
+            User.facebookRegister(fbUser)
                 .then(function(newUser) {
                     return reply(newUser);
                 }).catch(function(err) {
@@ -104,12 +107,12 @@ exports.fbAuthorize = {
                 });
         };
 
-        return User.findUser(request.payload)
-            .then(function(result) {
-                if (!result) {
-                    return fbRegister(request.payload);
+        return User.findByFbId(fb_id)
+            .then(function(user) {
+                if (!user) {
+                    return facebookRegister(fb_user);
                 } else {
-                    return reply(result);
+                    return reply(user);
                 }
             }).catch(function(err) {
                 console.log(err + ':(');

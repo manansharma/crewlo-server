@@ -1,14 +1,33 @@
 var Bookshelf = require('../database').bookshelf;
 var Promise = require('bluebird');
-var Bcrypt = require('bcrypt');
 var Boom = require('boom');
 
-var User = Bookshelf.Model.extend({
-    tableName: 'user_credentials',
-    idAttribute: 'user_id',
+var Post = Bookshelf.Model.extend({
+    tableName: 'posts',
+    idAttribute: 'id',
     hasTimestamps: true,
 }, {
-    findByFbId: function(fb_id) {
+    createPost: function(newPost) {
+        var promise = new Promise(function(resolve, reject) {
+            new Post(newPost).save().then(function(savedPost) {
+                resolve(savedPost);
+            });
+        });
+        return promise;
+    },
+    getPosts: function(user_id) {
+        var promise = new Promise(function(resolve, reject) {
+            var findPosts = new Post({'user_id': user_id})
+                .fetchAll()
+                .then(function(posts) {
+                    console.log(posts);
+                    return posts;
+                });
+            resolve(findPosts);
+        });
+        return promise;
+    },
+    findByFbId: function(_id) {
         var promise = new Promise(function(resolve, reject) {
             var findUser = new User({'fb_id': fb_id})
                 .fetch()
@@ -19,6 +38,8 @@ var User = Bookshelf.Model.extend({
         });
         return promise;
     },
+
+
     facebookRegister: function(fbUser) {
         var promise = new Promise(function(resolve, reject) {
             var newUser = {
@@ -94,4 +115,4 @@ var User = Bookshelf.Model.extend({
     }
 });
 
-exports.User = User;
+exports.Post = Post;
