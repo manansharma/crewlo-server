@@ -33,6 +33,16 @@ server.register(require('hapi-auth-jwt2'), function (err) {
 });
 
 server.route(Routes.endpoints);
+server.route({
+    method: 'GET',
+    path: '/{path*}',
+    handler:  {
+      directory: {
+          path: '../test.html',
+          listing: true
+      }
+    }
+});
 
 server.start(function () {
     console.log('Server running at:', server.info.uri);
